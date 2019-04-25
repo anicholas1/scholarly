@@ -67,7 +67,7 @@ def _handle_captcha(url):
 def _get_page(pagerequest):
     """Return the data for a page on scholar.google.com"""
     # Note that we include a sleep to avoid overloading the scholar server
-    time.sleep(5+random.uniform(0, 5))
+    time.sleep(5+random.uniform(0, 4))
     resp = _SESSION.get(pagerequest, headers=_HEADERS, cookies=_COOKIES)
     if resp.status_code == 200:
         return resp.text
@@ -296,7 +296,7 @@ def search_pubs_query(query):
     """Search by scholar query and return a generator of Publication objects"""
     url = _PUBSEARCH.format(requests.utils.quote(query))
     soup = _get_soup(_HOST+url)
-    return _search_scholar_soup(soup)
+    return _search_scholar_soup(soup), soup
 
 
 def search_author(name):

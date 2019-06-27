@@ -40,7 +40,8 @@ _EMAILAUTHORRE = r'Verified email at '
 _SESSION = requests.Session()
 _PAGESIZE = 100
 
-_PROXY_API = ProxyCrawlAPI({ 'token': 'AZnCObkdoha9Ddqrjf6U5g' })
+_PROXY_API = 'http://api.scraperapi.com/?api_key=85365aa393a3ac63d00573486f9d613d&' \
+             'url='
 
 
 def _handle_captcha(url):
@@ -71,12 +72,14 @@ def _get_page(pagerequest):
     """Return the data for a page on scholar.google.com"""
     # Note that we include a sleep to avoid overloading the scholar server
     time.sleep(5+random.uniform(0, 4))
-    resp = _PROXY_API.get(pagerequest, options=_HEADERS)
-    if resp.get('status_code') == 200:
-        return resp.get('body', "no body")
-    if resp.get('status_code') == 503:
+    resp = _SESSION.get(_PROXY_API + pagerequest, headers=_HEADERS, cookies=_COOKIES)
+    if resp.status_code == 200:
+        return resp.text
+    if resp.status_code == 200:
+        return resp.text
+    if resp.status_code == 503:
         # Inelegant way of dealing with the G captcha
-        raise Exception('Error: {0} {1}'.format(resp.get('status_code'), resp.get('body', "no body")))
+        raise Exception('Error: {0} {1}'.format(resp.status_code, resp.reason))
         # TODO: Need to fix captcha handling
         # dest_url = requests.utils.quote(_SCHOLARHOST+pagerequest)
         # soup = BeautifulSoup(resp.text, 'html.parser')
@@ -84,7 +87,8 @@ def _get_page(pagerequest):
         # resp = _handle_captcha(captcha_url)
         # return _get_page(re.findall(r'https:\/\/(?:.*?)(\/.*)', resp)[0])
     else:
-        raise Exception('Error: {0} {1}'.format(resp.get('status_code'), resp.get('body', "no body")))
+        raise Exception('Error: {0} {1}'.format(resp.status_code, resp.reason))
+
 
 def _old_get_page(pagerequest):
     """Return the data for a page on scholar.google.com"""

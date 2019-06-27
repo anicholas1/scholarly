@@ -3,6 +3,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from bs4 import BeautifulSoup
+from proxycrawl.proxycrawl_api import ProxyCrawlAPI
 
 import arrow
 import bibtexparser
@@ -39,6 +40,8 @@ _EMAILAUTHORRE = r'Verified email at '
 _SESSION = requests.Session()
 _PAGESIZE = 100
 
+_PROXY_API = ProxyCrawlAPI({ 'token': 'AZnCObkdoha9Ddqrjf6U5g' })
+
 
 def _handle_captcha(url):
     # TODO: PROBLEMS HERE! NEEDS ATTENTION
@@ -65,6 +68,25 @@ def _handle_captcha(url):
 
 
 def _get_page(pagerequest):
+    """Return the data for a page on scholar.google.com"""
+    # Note that we include a sleep to avoid overloading the scholar server
+    time.sleep(5+random.uniform(0, 4))
+    resp = _PROXY_API.get(pagerequest, options=_HEADERS)
+    if resp.get('status_code') == 200:
+        return resp.get('body', "no body")
+    if resp.get('status_code') == 503:
+        # Inelegant way of dealing with the G captcha
+        raise Exception('Error: {0} {1}'.format(resp.get('status_code'), resp.get('body', "no body")))
+        # TODO: Need to fix captcha handling
+        # dest_url = requests.utils.quote(_SCHOLARHOST+pagerequest)
+        # soup = BeautifulSoup(resp.text, 'html.parser')
+        # captcha_url = soup.find('img').get('src')
+        # resp = _handle_captcha(captcha_url)
+        # return _get_page(re.findall(r'https:\/\/(?:.*?)(\/.*)', resp)[0])
+    else:
+        raise Exception('Error: {0} {1}'.format(resp.get('status_code'), resp.get('body', "no body")))
+
+def _old_get_page(pagerequest):
     """Return the data for a page on scholar.google.com"""
     # Note that we include a sleep to avoid overloading the scholar server
     time.sleep(5+random.uniform(0, 4))

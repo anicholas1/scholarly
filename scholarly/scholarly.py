@@ -40,7 +40,7 @@ _EMAILAUTHORRE = r'Verified email at '
 _SESSION = requests.Session()
 _PAGESIZE = 100
 
-_PROXY_API = 'http://api.scraperapi.com/?api_key=85365aa393a3ac63d00573486f9d613d&' \
+_PROXY_API = 'http://api.scraperapi.com/?api_key=&' \
              'url='
 
 
